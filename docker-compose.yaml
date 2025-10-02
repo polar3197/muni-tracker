@@ -19,7 +19,7 @@ services:
       POSTGRES_USER: charlie.c
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: transit
-      POSTGRES_HOST = postgres
+      POSTGRES_HOST: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
@@ -39,7 +39,7 @@ services:
       db:
         condition: service_healthy
     restart: unless-stopped
-    command: python fetch_data_loop.py
+    command: python fetch_script.py
   
 volumes:
   pgdata:
