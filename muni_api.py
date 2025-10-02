@@ -11,13 +11,13 @@ import os
 from pathlib import Path
 from databases import Database
 from dotenv import load_dotenv
+from db_manager import DatabaseManager
 
-load_dotenv()
-HOT_MUNI_DATA = os.getenv("HOT_MUNI_DATA")
-psql_db_name = os.environ.get("TRANSIT_DB_NAME")
-psql_username = os.environ.get("PSQL_USERNAME")
-static_output_dir = os.environ.get("STATIC_MUNI_DATA")
-data_dir = Path(static_output_dir) / "data"
+POSTGRES_USERNAME = os.getenv("POSTGRES_USERNAME")
+POSTGRES_DB = os.getenv("POSTGRES_DB")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+POSTGRES_HOST = os.getenv('POSTGRES_HOST', 'localhost')
+S3_BUCKET = os.getenv("S3_BUCKET")
 
 class RouteGeometry(BaseModel):
     route_id: str
@@ -39,7 +39,7 @@ def get_db_connection():
     conn = None
     try:
         conn = psycopg2.connect(
-            host="172.19.0.1",  # Your Docker bridge IP
+            host="172.19.0.1",  # Docker bridge IP
             dbname=psql_db_name,
             user=psql_username,
             port=5432,
@@ -62,21 +62,18 @@ async def root():
 async def health():
     return {
         "status": "healthy",
-        "hot_data_path": HOT_MUNI_DATA,
         "file_exists": os.path.exists(HOT_MUNI_DATA) if HOT_MUNI_DATA else False
-    }
-
-@app.get("/debug")
-async def debug():
-    return {
-        "HOT_MUNI_DATA": HOT_MUNI_DATA,
-        "file_exists": os.path.exists(HOT_MUNI_DATA) if HOT_MUNI_DATA else False,
-        "cwd": os.getcwd(),
-        "env_vars": dict(os.environ)
     }
 
 @app.get("/hot-data")
 async def get_hot_data():
+    
+    db_url = f"postgresql://{POSTGRES_USERNAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5432/{POSTGRES_DB}"
+    dm = DatabaseManager(
+        db_url=db_url,
+        s3_bucket=S3_BUCKET
+    )
+    
     if not os.path.exists(HOT_MUNI_DATA):
         return JSONResponse(content={"error": "No data yet"}, status_code=404)
     try:
@@ -86,10 +83,9 @@ async def get_hot_data():
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
-# Fixed endpoint
-@app.get('/routes/{route_id}', response_model=RouteGeometry)  # @app not @api
-async def get_route_stats(route_id):  # async not asynch
-    # Regular string, not triple quotes
+# Endpoint for getting stops along route
+@app.get('/routes/{route_id}', response_model=RouteGeometry)
+async def get_route_stats(route_id):
     query = """
         SELECT 
             rs.route_id,
