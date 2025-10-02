@@ -7,6 +7,7 @@ import pandas as pd
 import gtfs_realtime_pb2
 import datetime, timezone
 import pytz
+from db_manager import DatabaseManager
 
 # The ingestor class allows fetching of vehicle data from the SFMTA MUNI GTFS
 # feed, and allows writing of that data to either a local relational database,
@@ -14,11 +15,10 @@ import pytz
 
 class MuniIngester:
 
-    def __init__(self, partition_manager):
+    def __init__(self, database_manager):
         self.api_key = os.getenv('MUNI_API_KEY')
-        self.partition_manager = partition_manager
+        self.database_manager = database_manager
         
-
         if not self.api_key:
             raise ValueError("no specified API key")
 
@@ -32,7 +32,7 @@ class MuniIngester:
         v = entity.vehicle
         
         # Time conversion
-        dt = datetime.fromtimestamp(v.timestamp, tz=timezone.utc)
+        dt = datetime.datetime.fromtimestamp(v.timestamp, tz=datetime.timezone.utc)
         dt_local = dt.astimezone(pytz.timezone("America/Los_Angeles"))
         
         # Trip data
@@ -75,7 +75,7 @@ class MuniIngester:
     def fetch_vehicle_data(self):
         # poll SFMTA MUNI GTFS feed
         response = requests.get(self.url)
-        response.raise_for_status
+        response.raise_for_status()
 
         # Parse protocolbuf into string
         feed = gtfs_realtime_pb2.FeedMessage()
@@ -94,13 +94,21 @@ class MuniIngester:
         return pd.DataFrame(vehicles)
 
     def write_to_postgres(self):
+
         df = self.fetch_vehicle_data()
 
         if df.empty:
             print("No vehicle data to write")
             return 0
         
-        df.to_sql('vehicles', self.partition_manager.engine, 
+        # identify partition of new batch
+        batch_timestamp = pd.to_datetime(df['timestamp'].iloc[0])
+        week = batch_timestamp.isocalendar().week
+        year = batch_timestamp.year
+
+        self.database_manager.createNewVehiclesPartition(week, year)
+
+        df.to_sql('vehicles', self.database_manager.engine, 
                   if_exists='append', index=False)
         
         print(f"Wrote {len(df)} vehicle records to database")

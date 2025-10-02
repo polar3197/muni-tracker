@@ -1,15 +1,18 @@
 from sqlalchemy import create_engine, text
 import boto3
 import pandas as pd
+import datetime
 
 
-class PartitionManager():
+class DatabaseManager():
     def __init__(self, db_url, s3_bucket):
         # establish connection point with pg db
         self.engine = create_engine(db_url)
         self.s3 = boto3.client('s3')
         self.bucket = s3_bucket
     
+    # This function allows scheduling of the job so that each week a 
+    # new partition can be made and the oldest one can be written to s3
     def exportTos3(self, partition_name):
         # read partition from postgres
         query = f"SELECT * FROM {partition_name}"
@@ -27,8 +30,26 @@ class PartitionManager():
         )
 
         return len(df)
+        
     
-    def create_vehicles_table(self):
+    def createNewVehiclesPartition(self, week, year): 
+        partition_name = f"vehicles_partition_{year}_w{week}"
+
+        start_of_week = datetime.datetime(year, 1, 1) + datetime.timedelta(weeks=week - 1)
+        end_of_week = start_of_week + datetime.timedelta(weeks=1)
+
+        with self.engine.connect() as conn:
+            conn.execute(text(f"""
+                CREATE TABLE IF NOT EXISTS {partition_name} 
+                PARTITION OF vehicles
+                FOR VALUES FROM ('{start_of_week}') TO ('{end_of_week}');
+                              
+                CREATE INDEX IF NOT EXISTS {partition_name}_route_idx
+                ON {partition_name}(route_id);
+            """))
+            conn.commit()
+    
+    def createVehiclesTable(self):
         with self.engine.connect as conn:
             conn.execute(text("""
                 CREATE TABLE IF NOT EXISTS vehicles (
