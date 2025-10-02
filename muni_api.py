@@ -1,17 +1,7 @@
-from fastapi import FastAPI, HTTPException  # Add HTTPException import
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List
-from psycopg2.extras import RealDictCursor
-from contextlib import contextmanager
-import json
-import os
-from pathlib import Path
-from databases import Database
-from dotenv import load_dotenv
-from db_manager import DatabaseManager
 from sqlalchemy import create_engine, text
+import os
 
 POSTGRES_USERNAME = os.getenv("POSTGRES_USERNAME")
 POSTGRES_DB = os.getenv("POSTGRES_DB")
@@ -21,10 +11,6 @@ POSTGRES_HOST = os.getenv('POSTGRES_HOST', 'localhost')
 # Database connection
 DATABASE_URL = f"postgresql://{POSTGRES_USERNAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5432/{POSTGRES_DB}"
 engine = create_engine(DATABASE_URL)
-
-class RouteGeometry(BaseModel):
-    route_id: str
-    geometry: list[dict]
 
 app = FastAPI()
 
@@ -38,7 +24,7 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"message": "MUNI API is running", "hot_data_path": HOT_MUNI_DATA}
+    return {"message": "MUNI API is running"}
 
 @app.get("/health")
 async def health():
