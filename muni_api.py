@@ -40,7 +40,7 @@ async def get_current_vehicles():
     """Get the latest position for each vehicle"""
     with engine.connect() as conn:
         query = text("""
-            SELECT v.vehicle_id, v.route_id, v.lat, v.lon, v.bearing, v.speed_mph, v.timestamp
+            SELECT *
             FROM vehicles v
             INNER JOIN (
                 SELECT vehicle_id, MAX(timestamp) as max_timestamp
