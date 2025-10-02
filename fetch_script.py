@@ -1,6 +1,7 @@
 from muni_ingester import MuniIngester
 from db_manager import DatabaseManager
 import os
+import time
 
 
 POSTGRES_USERNAME = os.getenv("POSTGRES_USERNAME")
@@ -19,11 +20,14 @@ def main():
 
     ingester = MuniIngester(database_manager=dm)
 
-    try:
-        count = ingester.write_to_postgres()
-        print(f"Wrote {count} records")
-    except Exception as e:
-        print(f"Error: {e}")
+    while (True):
+        try:
+            count = ingester.write_to_postgres()
+            print(f"Wrote {count} records")
+        except Exception as e:
+            print(f"Error: {e}")
+
+        time.sleep(60)
 
 if __name__ == "__main__":
     main()
