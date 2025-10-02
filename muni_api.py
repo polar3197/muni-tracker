@@ -37,14 +37,17 @@ async def health():
 
 @app.get("/vehicles/current")
 async def get_current_vehicles():
-    """Get the latest position for each vehicle (last 10 minutes)"""
+    """Get the latest position for each vehicle"""
     with engine.connect() as conn:
         query = text("""
-            SELECT DISTINCT ON (vehicle_id) 
-                vehicle_id, route_id, lat, lon, bearing, speed_mph, timestamp
-            FROM vehicles
-            WHERE timestamp > NOW() - INTERVAL '10 minutes'
-            ORDER BY vehicle_id, timestamp DESC
+            SELECT v.vehicle_id, v.route_id, v.lat, v.lon, v.bearing, v.speed_mph, v.timestamp
+            FROM vehicles v
+            INNER JOIN (
+                SELECT vehicle_id, MAX(timestamp) as max_timestamp
+                FROM vehicles
+                GROUP BY vehicle_id
+            ) latest ON v.vehicle_id = latest.vehicle_id 
+                   AND v.timestamp = latest.max_timestamp
         """)
         result = conn.execute(query)
         return [dict(row._mapping) for row in result]
