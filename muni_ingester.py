@@ -1,11 +1,10 @@
 import requests
 import json
-import dotenv
 import os
 import boto3
 import pandas as pd
-import gtfs_realtime_pb2
-import datetime, timezone
+from google.transit import gtfs_realtime_pb2
+from datetime import datetime, timezone
 import pytz
 from db_manager import DatabaseManager
 
@@ -32,7 +31,7 @@ class MuniIngester:
         v = entity.vehicle
         
         # Time conversion
-        dt = datetime.datetime.fromtimestamp(v.timestamp, tz=datetime.timezone.utc)
+        dt = datetime.fromtimestamp(v.timestamp, tz=timezone.utc)
         dt_local = dt.astimezone(pytz.timezone("America/Los_Angeles"))
         
         # Trip data

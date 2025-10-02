@@ -17,6 +17,8 @@ def main():
         db_url=db_url,
         s3_bucket=S3_BUCKET
     )
+    
+    dm.createVehiclesTable()
 
     ingester = MuniIngester(database_manager=dm)
 
