@@ -50,21 +50,22 @@ class DatabaseManager():
             conn.commit()
     
     def createVehiclesTable(self):
-        with self.engine.connect as conn:
-            conn.execute(text("""
-                CREATE TABLE IF NOT EXISTS vehicles (
-                    id SERIAL,
-                    vehicle_id VARCHAR(50) NOT NULL,
-                    route_id VARCHAR(50),
-                    lat DOUBLE PRECISION,
-                    lon DOUBLE PRECISION,
-                    heading DOUBLE PRECISION,
-                    speed DOUBLE PRECISION,
-                    timestamp TIMESTAMP NOT NULL,
-                    PRIMARY KEY (id, timestamp)
-                ) PARTITION BY RANGE (timestamp);
-            """))
-            conn.commit()
+        def createVehiclesTable(self):
+            with self.engine.connect() as conn:  # Add ()
+                conn.execute(text("""
+                    CREATE TABLE IF NOT EXISTS vehicles (
+                        id SERIAL,
+                        vehicle_id VARCHAR(50) NOT NULL,
+                        route_id VARCHAR(50),
+                        lat DOUBLE PRECISION,
+                        lon DOUBLE PRECISION,
+                        bearing DOUBLE PRECISION,
+                        speed_mph DOUBLE PRECISION,
+                        timestamp TIMESTAMP NOT NULL,
+                        PRIMARY KEY (id, timestamp)
+                    ) PARTITION BY RANGE (timestamp);
+                """))
+                conn.commit()
 
 
 
