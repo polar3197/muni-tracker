@@ -33,8 +33,12 @@ services:
     build: .
     container_name: muni-gtfs-fetcher
     environment:
-      GTFS_API_KEY: 5e6bf5d8-1d98-4eb3-b927-69dcab843474
-      DATABASE_URL: postgresql://charlie.c:${POSTGRES_PASSWORD}@db:5432/transit
+      MUNI_API_KEY: 5e6bf5d8-1d98-4eb3-b927-69dcab843474
+      POSTGRES_USERNAME: charlie.c
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: transit
+      POSTGRES_HOST: db
+      S3_BUCKET: charlie-muni-pg-backup 
     depends_on:
       db:
         condition: service_healthy
