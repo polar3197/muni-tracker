@@ -9,7 +9,7 @@ def main():
     postgres_host = os.getenv("POSTGRES_HOST")
     db_url = f"postgresql://{postgres_un}:{postgres_pw}@{postgres_host}:5432/{postgres_db}"
 
-    s3_bucket = os.getenv("charlie-muni-pg-backup")
+    s3_bucket = os.getenv("S3_BUCKET")
     # this will be run once a week. Because of this, it should 
 
     # 1. connect to database
