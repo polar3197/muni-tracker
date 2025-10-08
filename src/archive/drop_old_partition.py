@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 import os
 
 def main():
-    postgres_pw = os.getenv("POSTGRES_USERNAME")
+    postgres_pw = os.getenv("POSTGRES_PASSWORD")
     postgres_un = os.getenv("POSTGRES_USERNAME")
     postgres_db = os.getenv("POSTGRES_DB")
     postgres_host = os.getenv("POSTGRES_HOST")

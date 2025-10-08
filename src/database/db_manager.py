@@ -26,7 +26,7 @@ class DatabaseManager():
                           tablename < 'vehicles_partition_{year}_w{week_of_year}'
                 """
 
-        with self.engine.connect as conn:
+        with self.engine.connect() as conn:
             partitions_to_be_exported = conn.execute(text(query))
             conn.commit()
             
