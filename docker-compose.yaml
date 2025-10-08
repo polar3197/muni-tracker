@@ -17,6 +17,7 @@ services:
     image: postgis/postgis:15-3.3
     container_name: muni-db
     environment:
+      PYTHONPATH: /app
       POSTGRES_USER: charlie.c
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: transit
