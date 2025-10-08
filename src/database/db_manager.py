@@ -27,9 +27,10 @@ class DatabaseManager():
                 """
 
         with self.engine.connect() as conn:
-            partitions_to_be_exported = conn.execute(text(query))
+            result = conn.execute(text(query))
+            partitions_to_be_exported = result.fetchall()
             conn.commit()
-            
+
         # iterate through partition names that are > 4 weeks old and still in db
         for (table_name,) in partitions_to_be_exported:
             match = re.match("vehicles_partition_(\d+)_w(\d+)", table_name)
