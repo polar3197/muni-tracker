@@ -1,8 +1,13 @@
 from src.database.db_manager import DatabaseManager
 from sqlalchemy import create_engine
+import os
 
 def main():
-    db_url = f"postgresql://{os.getenv("POSTGRES_USERNAME")}:{os.getenv("POSTGRES_PASSWORD")}@{os.getenv("POSTGRES_HOST")}:5432/{os.getenv("POSTGRES_DB")}"
+    postgres_pw = os.getenv("POSTGRES_USERNAME")
+    postgres_un = os.getenv("POSTGRES_USERNAME")
+    postgres_db = os.getenv("POSTGRES_DB")
+    postgres_host = os.getenv("POSTGRES_HOST")
+    db_url = f"postgresql://{postgres_un}:{postgres_pw}@{postgres_host}:5432/{postgres_db}"
 
     s3_bucket = os.getenv("charlie-muni-pg-backup")
     # this will be run once a week. Because of this, it should 
