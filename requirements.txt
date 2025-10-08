@@ -4,3 +4,4 @@ sqlalchemy
 boto3
 gtfs-realtime-bindings
 psycopg2-binary
+pydantic-settings
