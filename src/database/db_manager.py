@@ -31,8 +31,8 @@ class DatabaseManager():
             conn.commit()
             
         # iterate through partition names that are > 4 weeks old and still in db
-        for p in partitions_to_be_exported:
-            match = re.match("vehicles_partition_(\d+)_w(\d+)", p)
+        for (table_name,) in partitions_to_be_exported:
+            match = re.match("vehicles_partition_(\d+)_w(\d+)", table_name)
 
             # extract week and year from partition name    
             year = match.group(1)
