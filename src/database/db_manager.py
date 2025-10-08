@@ -60,8 +60,8 @@ class DatabaseManager():
     def createNewVehiclesPartition(self, week, year): 
         partition_name = f"vehicles_partition_{year}_w{week}"
 
-        start_of_week = datetime.datetime(year, 1, 1) + datetime.timedelta(weeks=week - 1)
-        end_of_week = start_of_week + datetime.timedelta(weeks=1)
+        start_of_week = datetime(year, 1, 1) + timedelta(weeks=week - 1)
+        end_of_week = start_of_week + timedelta(weeks=1)
 
         with self.engine.connect() as conn:
             conn.execute(text(f"""
