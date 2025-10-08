@@ -3,13 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, text
 import os
 
-POSTGRES_USERNAME = os.getenv("POSTGRES_USERNAME")
-POSTGRES_DB = os.getenv("POSTGRES_DB")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-POSTGRES_HOST = os.getenv('POSTGRES_HOST', 'localhost')
 
 # Database connection
-DATABASE_URL = f"postgresql://{POSTGRES_USERNAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5432/{POSTGRES_DB}"
+DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 
 app = FastAPI()
