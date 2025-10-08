@@ -6,7 +6,7 @@ import pandas as pd
 from google.transit import gtfs_realtime_pb2
 from datetime import datetime, timezone
 import pytz
-from db_manager import DatabaseManager
+from src.database.db_manager import DatabaseManager
 
 # The ingestor class allows fetching of vehicle data from the SFMTA MUNI GTFS
 # feed, and allows writing of that data to either a local relational database,

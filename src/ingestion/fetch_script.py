@@ -1,5 +1,5 @@
 from muni_ingester import MuniIngester
-from db_manager import DatabaseManager
+from src.database.db_manager import DatabaseManager
 import os
 import time
 
