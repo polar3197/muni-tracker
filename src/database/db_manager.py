@@ -33,27 +33,34 @@ class DatabaseManager():
 
         # iterate through partition names that are > 4 weeks old and still in db
         for (table_name,) in partitions_to_be_exported:
-            match = re.match("vehicles_partition_(\d+)_w(\d+)", table_name)
+            match = re.match(r"vehicles_partition_(\d+)_w(\d+)", table_name)
 
-            # extract week and year from partition name    
-            year = match.group(1)
-            week = match.group(2)
+            if match:
+                # extract week and year from partition name    
+                year = match.group(1)
+                week = match.group(2)
 
-            # read partition from postgres
-            query = f"SELECT * FROM vehicles_partition_{year}_w{week}"
-            df = pd.read_sql(query, self.engine)
+                # read partition from postgres
+                part_name = f"vehicles_partition_{year}_w{week}"
+                query = f"SELECT * FROM {part_name}"
+                df = pd.read_sql(query, self.engine)
 
-            # write to parquet
-            parquet = df.to_parquet(compression="snappy")
+                # write to parquet
+                parquet = df.to_parquet(compression="snappy")
 
-            # upload to s3
-            s3_key = f"vehicle_records/{year}/{week}.parquet"
-            self.s3.put_object(
-                Bucket=self.bucket,
-                Key=s3_key,
-                Body=parquet
-            )
-            print(f"Successfully exported vehicles_partition_{year}_w{week} to S3")
+                # upload to s3
+                s3_key = f"vehicle_records/{year}/{week}.parquet"
+                self.s3.put_object(
+                    Bucket=self.bucket,
+                    Key=s3_key,
+                    Body=parquet
+                )
+                print(f"Successfully exported {part_name} to S3")
+
+                # drop the partition from the db after exporting
+                with self.engine.connect() as conn:
+                    conn.execute(text(f"DROP TABLE {part_name}"))
+                    conn.commit()
 
         return len(partitions_to_be_exported)
         
