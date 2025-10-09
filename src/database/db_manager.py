@@ -17,8 +17,8 @@ class DatabaseManager():
     def exportOldestPartitionTos3(self):
 
         # identify year/week of current moment
-        four_weeks_ago = datetime.now() - timedelta(weeks=4)
-        year, week_of_year, dow = four_weeks_ago.isocalendar()
+        two_weeks_ago = datetime.now() - timedelta(weeks=2)
+        year, week_of_year, dow = two_weeks_ago.isocalendar()
 
         # query to find any partitions older than four weeks
         query = f"""SELECT tablename FROM pg_tables 
