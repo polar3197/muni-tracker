@@ -58,7 +58,7 @@ async def get_current_vehicles(route_id: Optional[str] = None):
                     r.route_type
                 FROM vehicles v
                 LEFT JOIN stops s ON v.stop_id::VARCHAR = s.stop_id
-                LEFT JOIN routes r ON v.route_id = r.route_id
+                LEFT JOIN routes r ON v.route_id = r.route_short_name
                 WHERE v.timestamp = (SELECT MAX(timestamp) FROM vehicles)
                 AND (v.route_id = :route_id OR r.route_short_name = :route_id)
             """)
@@ -84,7 +84,7 @@ async def get_current_vehicles(route_id: Optional[str] = None):
                     r.route_type
                 FROM vehicles v
                 LEFT JOIN stops s ON v.stop_id::VARCHAR = s.stop_id
-                LEFT JOIN routes r ON v.route_id = r.route_id
+                LEFT JOIN routes r ON v.route_id = r.route_short_name
                 WHERE v.timestamp = (SELECT MAX(timestamp) FROM vehicles)
             """)
             result = conn.execute(query)
