@@ -391,7 +391,7 @@ class StaticDataManager:
         
         print(f"Successfully loaded stop times")
     
-   def initializeAllTables(self):
+    def initializeAllTables(self):
         """Create all necessary tables for static GTFS data"""
         print("Creating tables...")
         self.createRoutesTable()
